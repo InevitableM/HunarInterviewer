@@ -4,6 +4,7 @@ import hmac
 import time
 
 import httpx
+from fastapi import HTTPException
 
 from app.config.settings import get_settings
 
@@ -15,7 +16,9 @@ def _headers():
     return {"X-API-Key": settings.hunar_api_key}
 
 
-async def start_call(candidate_name: str, phone: str, custom_data: dict | None = None) -> dict:
+async def start_call(
+    candidate_name: str, phone: str, custom_data: dict | None = None
+) -> dict:
     settings = get_settings()
     url = f"{settings.hunar_api_base_url}{BASE_PATH}/calls/"
 
@@ -23,13 +26,21 @@ async def start_call(candidate_name: str, phone: str, custom_data: dict | None =
         "agent_id": settings.hunar_agent_id,
         "callee_name": candidate_name,
         "mobile_number": phone,
+        # "callback_config": {
+        #     "call_status_callback_url": f"{settings.webhook_base_url}/webhook/hunar/status",
+        #     "call_recording_callback_url": f"{settings.webhook_base_url}/webhook/hunar/recording",
+        #     "call_result_callback_url": f"{settings.webhook_base_url}/webhook/hunar/result",
+        #     "call_summary_callback_url": f"{settings.webhook_base_url}/webhook/hunar/summary",
+        # },
+        # no guardrails override - org default (08:00-21:00 IST) applies
     }
     if custom_data:
         body["custom_data"] = custom_data
 
     async with httpx.AsyncClient() as client:
         resp = await client.post(url, json=body, headers=_headers())
-        resp.raise_for_status()
+        if resp.status_code >= 400:
+            raise HTTPException(status_code=resp.status_code, detail=resp.json())
         return resp.json()
 
 
@@ -43,7 +54,9 @@ async def fetch_call(call_id: str) -> dict:
         return resp.json()
 
 
-def verify_signature(raw_body: bytes, signature_header: str, timestamp_header: str) -> bool:
+def verify_signature(
+    raw_body: bytes, signature_header: str, timestamp_header: str
+) -> bool:
     settings = get_settings()
 
     # reject stale/replayed webhooks
@@ -55,7 +68,9 @@ def verify_signature(raw_body: bytes, signature_header: str, timestamp_header: s
         return False
 
     message = f"{timestamp_header.strip()}.".encode() + raw_body
-    expected = hmac.new(settings.hunar_api_key.encode(), message, hashlib.sha256).digest()
+    expected = hmac.new(
+        settings.hunar_api_key.encode(), message, hashlib.sha256
+    ).digest()
     expected_b64 = base64.b64encode(expected).decode()
 
     given_signatures = signature_header.split(",")

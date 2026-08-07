@@ -19,6 +19,8 @@ class Settings(BaseSettings):
 
     apollo_api_key: str
 
+    webhook_base_url: str= "https://hunar-interviewer.onrender.com"
+
 
 @lru_cache
 def get_settings() -> Settings:
