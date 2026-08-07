@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.dependencies import get_current_user
 from app.schemas.candidate import CandidateCreate, CandidateOut, CandidateUpdate
 from app.services import candidate_service
 
-router = APIRouter(prefix="/candidate", tags=["candidate"])
+router = APIRouter(prefix="/candidate", tags=["candidate"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=CandidateOut)

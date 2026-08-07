@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api import candidate
+from app.api import auth, candidate, interview, webhook
 from app.database.mongo import close_mongo_connection, connect_to_mongo
 
 
@@ -15,7 +15,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Hunar Interviewer", lifespan=lifespan)
 
+app.include_router(auth.router)
 app.include_router(candidate.router)
+app.include_router(interview.router)
+app.include_router(webhook.router)
 
 
 @app.get("/health")
