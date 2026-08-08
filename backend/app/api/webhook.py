@@ -20,19 +20,23 @@ async def _process(request: Request):
 
 @router.post("/status")
 async def call_status_updated(request: Request):
+    print("Webhook status received")
     return await _process(request)
 
 
 @router.post("/recording")
 async def call_recording_done(request: Request):
+    print("Webhook recording received")
     return await _process(request)
 
 
 @router.post("/result")
 async def call_result_done(request: Request):
+    print("Webhook result received")
     return await _process(request)
 
 
 @router.post("/summary")
 async def call_summary(request: Request):
+    print("Webhook summary received")
     return await _process(request)

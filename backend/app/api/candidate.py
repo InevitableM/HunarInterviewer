@@ -13,6 +13,14 @@ async def create_candidate(payload: CandidateCreate):
     return doc
 
 
+@router.post("/import", response_model=CandidateOut)
+async def import_candidate(payload: CandidateCreate):
+    data = payload.model_dump()
+    data["source"] = "people_search"
+    doc = await candidate_service.create_candidate(data)
+    return doc
+
+
 @router.get("/", response_model=list[CandidateOut])
 async def list_candidates():
     return await candidate_service.list_candidates()

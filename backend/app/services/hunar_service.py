@@ -21,17 +21,17 @@ async def start_call(
 ) -> dict:
     settings = get_settings()
     url = f"{settings.hunar_api_base_url}{BASE_PATH}/calls/"
-
+    print(f"starting call with callback urls: {settings.webhook_base_url}/webhook/hunar/status")
     body = {
         "agent_id": settings.hunar_agent_id,
         "callee_name": candidate_name,
         "mobile_number": phone,
-        # "callback_config": {
-        #     "call_status_callback_url": f"{settings.webhook_base_url}/webhook/hunar/status",
-        #     "call_recording_callback_url": f"{settings.webhook_base_url}/webhook/hunar/recording",
-        #     "call_result_callback_url": f"{settings.webhook_base_url}/webhook/hunar/result",
-        #     "call_summary_callback_url": f"{settings.webhook_base_url}/webhook/hunar/summary",
-        # },
+        "callback_config": {
+            "call_status_callback_url": f"{settings.webhook_base_url}/webhook/hunar/status",
+            "call_recording_callback_url": f"{settings.webhook_base_url}/webhook/hunar/recording",
+            "call_result_callback_url": f"{settings.webhook_base_url}/webhook/hunar/result",
+            "call_summary_callback_url": f"{settings.webhook_base_url}/webhook/hunar/summary",
+        },
         # no guardrails override - org default (08:00-21:00 IST) applies
     }
     if custom_data:

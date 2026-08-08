@@ -17,9 +17,9 @@ class Settings(BaseSettings):
     hunar_api_base_url: str = "https://api.voice.hunar.ai"
     hunar_agent_id: str
 
-    apollo_api_key: str
+    prospeo_api_key: str
 
-    webhook_base_url: str= "https://hunar-interviewer.onrender.com"
+    webhook_base_url: str
 
 
 @lru_cache
