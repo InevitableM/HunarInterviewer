@@ -15,6 +15,16 @@ export default function LoginPage() {
 
   async function handleSubmit() {
     setError('')
+
+    if (mode === 'register' && !name.trim()) {
+      setError('Full name is required')
+      return
+    }
+    if (!email.trim() || !password.trim()) {
+      setError('Email and password are required')
+      return
+    }
+
     setLoading(true)
     try {
       if (mode === 'register') {

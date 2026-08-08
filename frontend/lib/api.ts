@@ -13,6 +13,19 @@ export function clearToken() {
   localStorage.removeItem('token')
 }
 
+function extractErrorMessage(body: { detail?: unknown }): string | null {
+  const detail = body.detail
+  if (!detail) return null
+  if (typeof detail === 'string') return detail
+  // FastAPI validation errors: [{ loc, msg, type }, ...]
+  if (Array.isArray(detail)) {
+    return detail
+      .map((d) => (typeof d === 'object' && d && 'msg' in d ? String((d as { msg: unknown }).msg) : String(d)))
+      .join(', ')
+  }
+  return JSON.stringify(detail)
+}
+
 async function request(path: string, options: RequestInit = {}) {
   const token = getToken()
   const headers: Record<string, string> = {
@@ -25,7 +38,7 @@ async function request(path: string, options: RequestInit = {}) {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
-    throw new Error(body.detail ? JSON.stringify(body.detail) : `Request failed: ${res.status}`)
+    throw new Error(extractErrorMessage(body) ?? `Request failed: ${res.status}`)
   }
 
   if (res.status === 204) return null

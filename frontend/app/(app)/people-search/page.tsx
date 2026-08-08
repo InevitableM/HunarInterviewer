@@ -33,12 +33,12 @@ function PersonCard({
 }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 hover:border-slate-300 transition-colors">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="flex items-start gap-3 min-w-0">
           <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-medium flex-shrink-0">
             {(person.name ?? '?').split(' ').map((n) => n[0]).join('').slice(0, 2)}
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-medium text-slate-800">{person.name}</p>
             <p className="text-sm text-slate-500">{person.title}</p>
             <p className="text-sm text-slate-400">{person.company}</p>
@@ -47,7 +47,7 @@ function PersonCard({
                 href={person.linkedin_url}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs text-teal-600 hover:text-teal-700 mt-1 inline-block transition-colors"
+                className="text-xs text-teal-600 hover:text-teal-700 mt-1 inline-block transition-colors break-all"
               >
                 {person.linkedin_url}
               </a>
@@ -64,7 +64,7 @@ function PersonCard({
           <button
             onClick={onAdd}
             disabled={isAdding || isAdded}
-            className={`text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
+            className={`w-full sm:w-auto text-sm font-medium px-3 py-1.5 rounded-lg transition-colors ${
               isAdded ? 'bg-emerald-50 text-emerald-600' : 'bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white'
             }`}
           >
@@ -143,7 +143,7 @@ export default function PeopleSearchPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-slate-900">People Search</h1>
         <p className="text-sm text-slate-500 mt-0.5">Find and import candidates from professional networks</p>
@@ -151,7 +151,7 @@ export default function PeopleSearchPage() {
 
       <div className="bg-white rounded-xl border border-slate-200 p-5 mb-6">
         <label className="block text-sm font-medium text-slate-700 mb-2">Job title</label>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
             value={query}
@@ -201,12 +201,12 @@ export default function PeopleSearchPage() {
                   >
                     <path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <div className="flex-1 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-slate-800">{item.job_title ?? 'Untitled search'}</p>
+                  <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 min-w-0">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-slate-800 truncate">{item.job_title ?? 'Untitled search'}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{new Date(item.created_at).toLocaleString()}</p>
                     </div>
-                    <span className="text-sm text-slate-500">{item.results.length} results</span>
+                    <span className="text-sm text-slate-500 flex-shrink-0">{item.results.length} results</span>
                   </div>
                 </button>
 

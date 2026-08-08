@@ -111,13 +111,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-slate-900">Interview Dashboard</h1>
         <p className="text-sm text-slate-500 mt-0.5">Track all AI-conducted interviews</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
           { label: 'Total', value: stats.total, color: 'text-slate-800' },
           { label: 'Completed', value: stats.completed, color: 'text-emerald-600' },
@@ -131,8 +131,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <table className="w-full">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+        <table className="w-full min-w-160">
           <thead>
             <tr className="border-b border-slate-100">
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Candidate</th>

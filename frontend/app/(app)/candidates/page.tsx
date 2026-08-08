@@ -148,15 +148,15 @@ export default function CandidatesPage() {
   )
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Candidates</h1>
           <p className="text-sm text-slate-500 mt-0.5">{candidates.length} total candidates</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           + Add candidate
         </button>
@@ -168,12 +168,12 @@ export default function CandidatesPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search candidates..."
-          className="w-full max-w-xs px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all placeholder:text-slate-400 bg-white"
+          className="w-full sm:max-w-xs px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all placeholder:text-slate-400 bg-white"
         />
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <table className="w-full">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+        <table className="w-full min-w-160">
           <thead>
             <tr className="border-b border-slate-100">
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
@@ -204,14 +204,14 @@ export default function CandidatesPage() {
                     <button
                       onClick={() => handleStartInterview(c.id)}
                       disabled={startingId === c.id}
-                      className="text-sm text-teal-600 hover:text-teal-700 disabled:opacity-60 font-medium transition-colors"
+                      className="text-sm text-teal-600 hover:text-teal-700 disabled:opacity-60 font-medium transition-colors whitespace-nowrap"
                     >
                       {startingId === c.id ? 'Starting...' : 'Start interview'}
                     </button>
                     <button
                       onClick={() => handleDelete(c.id, c.name)}
                       disabled={deletingId === c.id}
-                      className="text-sm text-red-500 hover:text-red-600 disabled:opacity-60 font-medium transition-colors"
+                      className="text-sm text-red-500 hover:text-red-600 disabled:opacity-60 font-medium transition-colors whitespace-nowrap"
                     >
                       {deletingId === c.id ? 'Removing...' : 'Remove'}
                     </button>
