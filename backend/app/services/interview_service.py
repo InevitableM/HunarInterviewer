@@ -68,3 +68,14 @@ async def update_status(call_id: str, status: str, started_at: str = None, ended
 
     collection = get_collection(COLLECTION)
     await collection.update_one({"hunar_call_id": call_id}, {"$set": update})
+
+
+async def delete_interviews_for_candidate(candidate_id: str) -> None:
+    interviews = get_collection(COLLECTION)
+    ids = [iv["id"] for iv in await list_interviews(candidate_id)]
+
+    transcripts = get_collection("transcripts")
+    for interview_id in ids:
+        await transcripts.delete_one({"interview_id": interview_id})
+
+    await interviews.delete_many({"candidate_id": candidate_id})

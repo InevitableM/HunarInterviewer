@@ -27,7 +27,8 @@ async def handle_webhook(raw_body: bytes, signature_header: str, timestamp_heade
     elif event_type == "call_summary":
         await _handle_summary(interview, payload)
     elif event_type == "call_result_done":
-        await _save_transcript(interview["id"], structured_answers=payload.get("result"))
+        result = payload.get("result") or {}
+        await _save_transcript(interview["id"], structured_answers=result, summary=result.get("summary"))
     elif event_type == "call_recording_done":
         await _save_transcript(interview["id"], recording_url=payload.get("recording_url"))
 
@@ -52,18 +53,24 @@ async def _handle_summary(interview: dict, payload: dict) -> None:
         started_at=payload.get("started_at"),
         ended_at=payload.get("ended_at"),
     )
+    result = payload.get("result") or {}
     await _save_transcript(
         interview["id"],
-        structured_answers=payload.get("result"),
+        structured_answers=result,
+        summary=result.get("summary"),
         recording_url=payload.get("recording_url"),
     )
     await candidate_service.update_candidate_status(interview["candidate_id"], "COMPLETED")
 
 
-async def _save_transcript(interview_id: str, structured_answers: dict = None, recording_url: str = None) -> None:
+async def _save_transcript(
+    interview_id: str, structured_answers: dict = None, summary: str = None, recording_url: str = None
+) -> None:
     update = {}
     if structured_answers is not None:
         update["structured_answers"] = structured_answers
+    if summary is not None:
+        update["summary"] = summary
     if recording_url is not None:
         update["recording_url"] = recording_url
     if not update:

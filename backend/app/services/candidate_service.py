@@ -39,3 +39,15 @@ async def update_candidate(candidate_id: str, data: dict) -> dict | None:
 async def update_candidate_status(candidate_id: str, status: str) -> None:
     collection = get_collection(COLLECTION)
     await collection.update_one({"_id": to_object_id(candidate_id)}, {"$set": {"status": status}})
+
+
+async def delete_candidate(candidate_id: str) -> bool:
+    from app.services import interview_service
+
+    collection = get_collection(COLLECTION)
+    result = await collection.delete_one({"_id": to_object_id(candidate_id)})
+    if result.deleted_count == 0:
+        return False
+
+    await interview_service.delete_interviews_for_candidate(candidate_id)
+    return True

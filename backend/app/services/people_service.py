@@ -1,9 +1,14 @@
+from datetime import datetime
+
 import httpx
 from fastapi import HTTPException
 
 from app.config.settings import get_settings
+from app.database.mongo import get_collection
+from app.utils.object_id import doc_id_to_str, to_object_id
 
 BASE_URL = "https://api.prospeo.io"
+SEARCHES_COLLECTION = "people_searches"
 
 
 def _headers():
@@ -35,7 +40,29 @@ async def search_people(job_title: str = None, limit: int = 10) -> list[dict]:
             "company": company.get("name"),
             "linkedin_url": person.get("linkedin_url"),
         })
+
+    collection = get_collection(SEARCHES_COLLECTION)
+    await collection.insert_one({
+        "job_title": job_title,
+        "results": people,
+        "created_at": datetime.utcnow().isoformat(),
+    })
+
     return people
+
+
+async def list_search_history() -> list[dict]:
+    collection = get_collection(SEARCHES_COLLECTION)
+    docs = await collection.find().sort("_id", -1).to_list(length=None)
+    return [doc_id_to_str(doc) for doc in docs]
+
+
+async def get_search(search_id: str) -> dict | None:
+    collection = get_collection(SEARCHES_COLLECTION)
+    doc = await collection.find_one({"_id": to_object_id(search_id)})
+    if not doc:
+        return None
+    return doc_id_to_str(doc)
 
 
 async def enrich_person(person_id: str) -> dict:

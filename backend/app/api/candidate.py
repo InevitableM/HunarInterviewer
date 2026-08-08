@@ -40,3 +40,11 @@ async def update_candidate(candidate_id: str, payload: CandidateUpdate):
     if not doc:
         raise HTTPException(status_code=404, detail="candidate not found")
     return doc
+
+
+@router.delete("/{candidate_id}")
+async def delete_candidate(candidate_id: str):
+    deleted = await candidate_service.delete_candidate(candidate_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="candidate not found")
+    return {"deleted": True}

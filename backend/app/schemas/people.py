@@ -24,3 +24,10 @@ class EnrichResponse(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
+
+
+class SearchHistoryOut(BaseModel):
+    id: str
+    job_title: Optional[str] = None
+    results: list[PersonOut]
+    created_at: str
