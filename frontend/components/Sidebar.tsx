@@ -8,6 +8,7 @@ const links = [
   { href: '/candidates', label: 'Candidates' },
   { href: '/people-search', label: 'People Search' },
   { href: '/dashboard', label: 'Dashboard' },
+  { href: '/vision', label: 'Attendance Idea' },
 ]
 
 export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
