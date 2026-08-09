@@ -7,6 +7,10 @@ class InterviewStartRequest(BaseModel):
     candidate_id: str
 
 
+class BulkInterviewStartRequest(BaseModel):
+    candidate_ids: list[str]
+
+
 class InterviewOut(BaseModel):
     id: str
     candidate_id: str

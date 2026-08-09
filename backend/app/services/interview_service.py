@@ -36,6 +36,48 @@ async def start_interview(candidate_id: str) -> dict:
     return doc_id_to_str(doc)
 
 
+async def start_bulk_interviews(candidate_ids: list[str]) -> list[dict]:
+    candidates = []
+    for candidate_id in candidate_ids:
+        candidate = await candidate_service.get_candidate(candidate_id)
+        if candidate:
+            candidates.append(candidate)
+
+    if not candidates:
+        raise HTTPException(status_code=404, detail="no valid candidates found")
+
+    callees = [{"callee_name": c["name"], "mobile_number": c["phone"]} for c in candidates]
+    calls = await hunar_service.start_bulk_call(callees)
+
+    # match each returned call back to its candidate by phone number
+    calls_by_phone = {c["mobile_number"]: c for c in calls}
+
+    settings = get_settings()
+    collection = get_collection(COLLECTION)
+    created = []
+
+    for candidate in candidates:
+        call = calls_by_phone.get(candidate["phone"])
+        if not call:
+            continue
+
+        interview = {
+            "candidate_id": candidate["id"],
+            "agent_id": settings.hunar_agent_id,
+            "hunar_call_id": call["id"],
+            "status": call.get("status", "NOT_STARTED"),
+            "started_at": None,
+            "ended_at": None,
+        }
+        result = await collection.insert_one(interview)
+        doc = await collection.find_one({"_id": result.inserted_id})
+        created.append(doc_id_to_str(doc))
+
+        await candidate_service.update_candidate_status(candidate["id"], "CONTACTED")
+
+    return created
+
+
 async def get_interview(interview_id: str) -> dict | None:
     collection = get_collection(COLLECTION)
     doc = await collection.find_one({"_id": to_object_id(interview_id)})

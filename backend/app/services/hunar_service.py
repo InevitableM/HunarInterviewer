@@ -44,6 +44,28 @@ async def start_call(
         return resp.json()
 
 
+async def start_bulk_call(callees: list[dict]) -> list[dict]:
+    settings = get_settings()
+    url = f"{settings.hunar_api_base_url}{BASE_PATH}/calls/bulk/"
+
+    body = {
+        "agent_id": settings.hunar_agent_id,
+        "data": callees,
+        "callback_config": {
+            "call_status_callback_url": f"{settings.webhook_base_url}/webhook/hunar/status",
+            "call_recording_callback_url": f"{settings.webhook_base_url}/webhook/hunar/recording",
+            "call_result_callback_url": f"{settings.webhook_base_url}/webhook/hunar/result",
+            "call_summary_callback_url": f"{settings.webhook_base_url}/webhook/hunar/summary",
+        },
+    }
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(url, json=body, headers=_headers())
+        if resp.status_code >= 400:
+            raise HTTPException(status_code=resp.status_code, detail=resp.json())
+        return resp.json()
+
+
 async def fetch_call(call_id: str) -> dict:
     settings = get_settings()
     url = f"{settings.hunar_api_base_url}{BASE_PATH}/calls/{call_id}/"

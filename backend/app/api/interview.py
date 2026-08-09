@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies import get_current_user
-from app.schemas.interview import InterviewOut, InterviewStartRequest
+from app.schemas.interview import BulkInterviewStartRequest, InterviewOut, InterviewStartRequest
 from app.services import interview_service
 
 router = APIRouter(prefix="/interview", tags=["interview"], dependencies=[Depends(get_current_user)])
@@ -10,6 +10,11 @@ router = APIRouter(prefix="/interview", tags=["interview"], dependencies=[Depend
 @router.post("/start", response_model=InterviewOut)
 async def start_interview(payload: InterviewStartRequest):
     return await interview_service.start_interview(payload.candidate_id)
+
+
+@router.post("/bulk-start", response_model=list[InterviewOut])
+async def bulk_start_interview(payload: BulkInterviewStartRequest):
+    return await interview_service.start_bulk_interviews(payload.candidate_ids)
 
 
 @router.get("/", response_model=list[InterviewOut])

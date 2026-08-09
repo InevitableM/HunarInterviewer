@@ -57,9 +57,9 @@ function AddCandidateModal({ onClose, onAdded }: { onClose: () => void; onAdded:
         </div>
         <div className="space-y-4">
           {[
-            { label: 'Full name', value: name, set: setName, placeholder: 'Marcus Webb', type: 'text' },
-            { label: 'Phone', value: phone, set: setPhone, placeholder: '+1 415 555 0100', type: 'tel' },
-            { label: 'Email', value: email, set: setEmail, placeholder: 'marcus@example.com', type: 'email' },
+            { label: 'Full name', value: name, set: setName, placeholder: 'Candidate Name', type: 'text' },
+            { label: 'Phone', value: phone, set: setPhone, placeholder: '+91XXXXXXXXXX', type: 'tel' },
+            { label: 'Email', value: email, set: setEmail, placeholder: 'candidate@example.com', type: 'email' },
             { label: 'LinkedIn URL', value: linkedin, set: setLinkedin, placeholder: 'linkedin.com/in/...', type: 'url' },
           ].map(({ label, value, set, placeholder, type }) => (
             <div key={label}>
@@ -100,6 +100,8 @@ export default function CandidatesPage() {
   const [showModal, setShowModal] = useState(false)
   const [startingId, setStartingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkStarting, setBulkStarting] = useState(false)
 
   async function loadCandidates() {
     setLoading(true)
@@ -141,6 +143,33 @@ export default function CandidatesPage() {
     }
   }
 
+  function toggleSelected(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    setSelected((prev) => (prev.size === filtered.length ? new Set() : new Set(filtered.map((c) => c.id))))
+  }
+
+  async function handleBulkStartInterview() {
+    setBulkStarting(true)
+    try {
+      await api.post('/interview/bulk-start', { candidate_ids: Array.from(selected) })
+      setSelected(new Set())
+      await loadCandidates()
+      router.push('/dashboard')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to start interviews')
+    } finally {
+      setBulkStarting(false)
+    }
+  }
+
   const filtered = candidates.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -162,7 +191,7 @@ export default function CandidatesPage() {
         </button>
       </div>
 
-      <div className="mb-5">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <input
           type="text"
           value={search}
@@ -170,12 +199,35 @@ export default function CandidatesPage() {
           placeholder="Search candidates..."
           className="w-full sm:max-w-xs px-3 py-2 text-sm border border-slate-200 rounded-lg outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all placeholder:text-slate-400 bg-white"
         />
+        {selected.size > 0 && (
+          <div className="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-lg px-4 py-2">
+            <span className="text-sm text-teal-800 font-medium">{selected.size} selected</span>
+            <button
+              onClick={handleBulkStartInterview}
+              disabled={bulkStarting}
+              className="text-sm font-medium bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+            >
+              {bulkStarting ? 'Starting...' : `Start ${selected.size} interview${selected.size > 1 ? 's' : ''}`}
+            </button>
+            <button onClick={() => setSelected(new Set())} className="text-sm text-teal-700 hover:text-teal-800 transition-colors">
+              Clear
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
         <table className="w-full min-w-160">
           <thead>
             <tr className="border-b border-slate-100">
+              <th className="px-5 py-3.5 w-10">
+                <input
+                  type="checkbox"
+                  checked={filtered.length > 0 && selected.size === filtered.length}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500/30"
+                />
+              </th>
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</th>
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
@@ -185,7 +237,15 @@ export default function CandidatesPage() {
           </thead>
           <tbody className="divide-y divide-slate-50">
             {filtered.map((c) => (
-              <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
+              <tr key={c.id} className={`hover:bg-slate-50/60 transition-colors ${selected.has(c.id) ? 'bg-teal-50/40' : ''}`}>
+                <td className="px-5 py-3.5">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(c.id)}
+                    onChange={() => toggleSelected(c.id)}
+                    className="w-4 h-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500/30"
+                  />
+                </td>
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center text-sm font-medium flex-shrink-0">
