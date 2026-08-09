@@ -22,7 +22,7 @@ async def get_candidate(candidate_id: str) -> dict | None:
 
 async def list_candidates() -> list[dict]:
     collection = get_collection(COLLECTION)
-    docs = await collection.find().to_list(length=None)
+    docs = await collection.find().sort("_id", -1).to_list(length=None)
     return [doc_id_to_str(doc) for doc in docs]
 
 

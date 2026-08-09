@@ -101,7 +101,7 @@ async def get_by_call_id(call_id: str) -> dict | None:
 async def list_interviews(candidate_id: str | None = None) -> list[dict]:
     collection = get_collection(COLLECTION)
     query = {"candidate_id": candidate_id} if candidate_id else {}
-    docs = await collection.find(query).to_list(length=None)
+    docs = await collection.find(query).sort("_id", -1).to_list(length=None)
     return [doc_id_to_str(doc) for doc in docs]
 
 
