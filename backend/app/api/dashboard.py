@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
 from app.database.mongo import get_collection
-from app.dependencies import get_current_user
+
+# from app.dependencies import get_current_user
 from app.services import candidate_service, interview_service
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/dashboard", tags=["dashboard"])  # dependencies=[Depends(get_current_user)]
 
 
 @router.get("/")

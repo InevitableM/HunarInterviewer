@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { clearToken } from '@/lib/api'
+import { usePathname } from 'next/navigation'
+// import { clearToken } from '@/lib/api'
 
 const links = [
   { href: '/candidates', label: 'Candidates' },
@@ -12,12 +12,11 @@ const links = [
 
 export default function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname()
-  const router = useRouter()
 
-  function handleLogout() {
-    clearToken()
-    router.push('/login')
-  }
+  // function handleLogout() {
+  //   clearToken()
+  //   router.push('/login')
+  // }
 
   return (
     <>
@@ -70,11 +69,11 @@ export default function Sidebar({ open, onClose }: { open: boolean; onClose: () 
           ))}
         </nav>
 
-        <div className="px-4 py-4 border-t border-slate-100">
+        {/* <div className="px-4 py-4 border-t border-slate-100">
           <button onClick={handleLogout} className="text-xs text-slate-500 hover:text-slate-700 transition-colors">
             Log out
           </button>
-        </div>
+        </div> */}
       </aside>
     </>
   )

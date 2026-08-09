@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from app.dependencies import get_current_user
+# from app.dependencies import get_current_user
 from app.schemas.people import EnrichRequest, EnrichResponse, PeopleSearchRequest, PersonOut, SearchHistoryOut
 from app.services import people_service
 
-router = APIRouter(prefix="/people", tags=["people"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/people", tags=["people"])  # dependencies=[Depends(get_current_user)]
 
 
 @router.post("/search", response_model=list[PersonOut])

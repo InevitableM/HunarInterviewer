@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from app.dependencies import get_current_user
+# from app.dependencies import get_current_user
 from app.schemas.interview import BulkInterviewStartRequest, InterviewOut, InterviewStartRequest
 from app.services import interview_service
 
-router = APIRouter(prefix="/interview", tags=["interview"], dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/interview", tags=["interview"])  # dependencies=[Depends(get_current_user)]
 
 
 @router.post("/start", response_model=InterviewOut)
