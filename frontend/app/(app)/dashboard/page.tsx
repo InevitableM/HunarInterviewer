@@ -106,7 +106,7 @@ export default function DashboardPage() {
   const stats = {
     total: rows.length,
     completed: rows.filter((r) => r.interview_status === 'COMPLETED').length,
-    scheduled: rows.filter((r) => r.interview_status === 'SCHEDULED').length,
+    scheduled: rows.filter((r) => r.interview_status === 'SCHEDULED'|| r.interview_status === 'NOT_STARTED').length,
     failed: rows.filter((r) => r.interview_status === 'FAILED' || r.interview_status === 'NOT_CONNECTED').length,
   }
 
