@@ -16,7 +16,8 @@ async def start_interview(candidate_id: str) -> dict:
         raise HTTPException(status_code=404, detail="candidate not found")
 
     settings = get_settings()
-    call = await hunar_service.start_call(candidate["name"], candidate["phone"])
+    custom_data = {"candidate_name": candidate["name"], "role": candidate.get("role") or "the open role"}
+    call = await hunar_service.start_call(candidate["name"], candidate["phone"], custom_data=custom_data)
 
     interview = {
         "candidate_id": candidate_id,
@@ -46,7 +47,10 @@ async def start_bulk_interviews(candidate_ids: list[str]) -> list[dict]:
     if not candidates:
         raise HTTPException(status_code=404, detail="no valid candidates found")
 
-    callees = [{"callee_name": c["name"], "mobile_number": c["phone"]} for c in candidates]
+    callees = []
+    for c in candidates:
+        custom_data = {"candidate_name": c["name"], "role": c.get("role") or "the open role"}
+        callees.append({"callee_name": c["name"], "mobile_number": c["phone"], "custom_data": custom_data})
     calls = await hunar_service.start_bulk_call(callees)
 
     # match each returned call back to its candidate by phone number

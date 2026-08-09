@@ -122,7 +122,7 @@ export default function PeopleSearchPage() {
     setExpandedId((current) => (current === id ? null : id))
   }
 
-  async function handleAddCandidate(person: PersonResult) {
+  async function handleAddCandidate(person: PersonResult, role: string | null) {
     setAddingId(person.person_id)
     try {
       const info = await api.post('/people/enrich', { person_id: person.person_id })
@@ -131,6 +131,7 @@ export default function PeopleSearchPage() {
         phone: info.phone ?? '',
         email: info.email ?? undefined,
         linkedin: person.linkedin_url ?? undefined,
+        role: role ?? 'the open role',
       })
       setAdded((prev) => new Set(prev).add(person.person_id))
       setJustAddedId(person.person_id)
@@ -219,7 +220,7 @@ export default function PeopleSearchPage() {
                         isAdding={addingId === person.person_id}
                         isAdded={added.has(person.person_id)}
                         showConfirmation={justAddedId === person.person_id}
-                        onAdd={() => handleAddCandidate(person)}
+                        onAdd={() => handleAddCandidate(person, item.job_title)}
                       />
                     ))}
                     {item.results.length === 0 && <p className="text-sm text-slate-400 text-center py-6">No results for this search.</p>}

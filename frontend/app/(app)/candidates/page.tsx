@@ -11,6 +11,7 @@ interface Candidate {
   phone: string
   email: string | null
   linkedin: string | null
+  role: string | null
   status: 'NEW' | 'CONTACTED' | 'INTERVIEWING' | 'COMPLETED'
 }
 
@@ -19,12 +20,13 @@ function AddCandidateModal({ onClose, onAdded }: { onClose: () => void; onAdded:
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [linkedin, setLinkedin] = useState('')
+  const [role, setRole] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   async function handleSubmit() {
-    if (!name.trim() || !phone.trim()) {
-      setError('Name and phone are required')
+    if (!name.trim() || !phone.trim() || !role.trim()) {
+      setError('Name, phone and role are required')
       return
     }
     setSaving(true)
@@ -33,6 +35,7 @@ function AddCandidateModal({ onClose, onAdded }: { onClose: () => void; onAdded:
       await api.post('/candidate/', {
         name: name.trim(),
         phone: phone.trim(),
+        role: role.trim(),
         email: email.trim() || undefined,
         linkedin: linkedin.trim() || undefined,
       })
@@ -59,6 +62,7 @@ function AddCandidateModal({ onClose, onAdded }: { onClose: () => void; onAdded:
           {[
             { label: 'Full name', value: name, set: setName, placeholder: 'Candidate Name', type: 'text' },
             { label: 'Phone', value: phone, set: setPhone, placeholder: '+91XXXXXXXXXX', type: 'tel' },
+            { label: 'Role', value: role, set: setRole, placeholder: 'e.g. Software Engineer', type: 'text' },
             { label: 'Email', value: email, set: setEmail, placeholder: 'candidate@example.com', type: 'email' },
             { label: 'LinkedIn URL', value: linkedin, set: setLinkedin, placeholder: 'linkedin.com/in/...', type: 'url' },
           ].map(({ label, value, set, placeholder, type }) => (
@@ -229,6 +233,7 @@ export default function CandidatesPage() {
                 />
               </th>
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
+              <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Role</th>
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</th>
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
               <th className="text-left px-5 py-3.5 text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
@@ -254,6 +259,7 @@ export default function CandidatesPage() {
                     <span className="text-sm font-medium text-slate-800">{c.name}</span>
                   </div>
                 </td>
+                <td className="px-5 py-3.5 text-sm text-slate-500">{c.role ?? '—'}</td>
                 <td className="px-5 py-3.5 text-sm text-slate-500 font-mono">{c.phone}</td>
                 <td className="px-5 py-3.5 text-sm text-slate-500">{c.email ?? '—'}</td>
                 <td className="px-5 py-3.5">

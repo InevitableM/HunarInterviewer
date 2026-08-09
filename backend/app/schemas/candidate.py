@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr
 class CandidateCreate(BaseModel):
     name: str
     phone: str
+    role: str  # role being hired for, e.g. "Software Engineer"
     email: Optional[EmailStr] = None
     linkedin: Optional[str] = None
     resume: Optional[str] = None  # just storing a url/path for now
@@ -18,6 +19,7 @@ class CandidateUpdate(BaseModel):
     email: Optional[EmailStr] = None
     linkedin: Optional[str] = None
     resume: Optional[str] = None
+    role: Optional[str] = None
     status: Optional[str] = None
 
 
@@ -28,5 +30,6 @@ class CandidateOut(BaseModel):
     email: Optional[str] = None
     linkedin: Optional[str] = None
     resume: Optional[str] = None
+    role: Optional[str] = None
     source: str
     status: str
