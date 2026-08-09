@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
-import { CandidateStatusBadge } from '@/components/StatusBadge'
+import { CandidateStatusBadge, CallStatusBadge } from '@/components/StatusBadge'
 
 interface Candidate {
   id: string
@@ -13,6 +13,98 @@ interface Candidate {
   linkedin: string | null
   role: string | null
   status: 'NEW' | 'CONTACTED' | 'INTERVIEWING' | 'COMPLETED'
+}
+
+interface Interview {
+  id: string
+  hunar_call_id: string | null
+  status: string
+  started_at: string | null
+  ended_at: string | null
+}
+
+function CandidateDetail({ candidate, onClose }: { candidate: Candidate; onClose: () => void }) {
+  const [interviews, setInterviews] = useState<Interview[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api
+      .get(`/interview/?candidate_id=${candidate.id}`)
+      .then(setInterviews)
+      .finally(() => setLoading(false))
+  }, [candidate.id])
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-start justify-end p-4">
+      <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-xl border border-slate-200 shadow-xl w-full max-w-lg h-full max-h-[calc(100vh-2rem)] flex flex-col overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">{candidate.name}</h2>
+            <p className="text-sm text-slate-500 font-mono">{candidate.phone}</p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+            ✕
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
+          <div>
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Candidate Details</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-50 rounded-lg p-3">
+                <p className="text-xs text-slate-400 mb-1">Status</p>
+                <CandidateStatusBadge status={candidate.status} />
+              </div>
+              <div className="bg-slate-50 rounded-lg p-3">
+                <p className="text-xs text-slate-400 mb-1">Role</p>
+                <p className="text-sm text-slate-700">{candidate.role ?? '—'}</p>
+              </div>
+              <div className="bg-slate-50 rounded-lg p-3">
+                <p className="text-xs text-slate-400 mb-1">Email</p>
+                <p className="text-sm text-slate-700">{candidate.email ?? '—'}</p>
+              </div>
+              <div className="bg-slate-50 rounded-lg p-3">
+                <p className="text-xs text-slate-400 mb-1">LinkedIn</p>
+                {candidate.linkedin ? (
+                  <a
+                    href={candidate.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-teal-600 hover:text-teal-700 transition-colors break-all"
+                  >
+                    View profile
+                  </a>
+                ) : (
+                  <p className="text-sm text-slate-700">—</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-3">Interview History</p>
+            {loading && <p className="text-sm text-slate-400">Loading...</p>}
+            {!loading && interviews.length === 0 && (
+              <p className="text-sm text-slate-400">No interviews started yet.</p>
+            )}
+            {!loading && interviews.length > 0 && (
+              <div className="bg-white rounded-lg border border-slate-100 divide-y divide-slate-50">
+                {interviews.map((iv) => (
+                  <div key={iv.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                    <div>
+                      <CallStatusBadge status={iv.status} />
+                      <p className="text-xs text-slate-400 mt-1 font-mono">{iv.started_at ?? 'not started yet'}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function AddCandidateModal({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) {
@@ -106,6 +198,7 @@ export default function CandidatesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkStarting, setBulkStarting] = useState(false)
+  const [viewing, setViewing] = useState<Candidate | null>(null)
 
   async function loadCandidates() {
     setLoading(true)
@@ -186,6 +279,7 @@ export default function CandidatesPage() {
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Candidates</h1>
           <p className="text-sm text-slate-500 mt-0.5">{candidates.length} total candidates</p>
+
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -219,7 +313,8 @@ export default function CandidatesPage() {
           </div>
         )}
       </div>
-
+      
+          <p className="text-xs text-slate-400 mt-1">Go to the Dashboard tab to check interview call status</p>
       <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
         <table className="w-full min-w-160">
           <thead>
@@ -242,8 +337,12 @@ export default function CandidatesPage() {
           </thead>
           <tbody className="divide-y divide-slate-50">
             {filtered.map((c) => (
-              <tr key={c.id} className={`hover:bg-slate-50/60 transition-colors ${selected.has(c.id) ? 'bg-teal-50/40' : ''}`}>
-                <td className="px-5 py-3.5">
+              <tr
+                key={c.id}
+                onClick={() => setViewing(c)}
+                className={`hover:bg-slate-50/60 cursor-pointer transition-colors ${selected.has(c.id) ? 'bg-teal-50/40' : ''}`}
+              >
+                <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="checkbox"
                     checked={selected.has(c.id)}
@@ -265,7 +364,7 @@ export default function CandidatesPage() {
                 <td className="px-5 py-3.5">
                   <CandidateStatusBadge status={c.status} />
                 </td>
-                <td className="px-5 py-3.5 text-right">
+                <td className="px-5 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center justify-end gap-4">
                     <button
                       onClick={() => handleStartInterview(c.id)}
@@ -294,6 +393,7 @@ export default function CandidatesPage() {
       </div>
 
       {showModal && <AddCandidateModal onClose={() => setShowModal(false)} onAdded={loadCandidates} />}
+      {viewing && <CandidateDetail candidate={viewing} onClose={() => setViewing(null)} />}
     </div>
   )
 }

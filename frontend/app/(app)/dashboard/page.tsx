@@ -131,6 +131,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      <p className="text-xs text-slate-400 mb-2">Click a row to see full call details</p>
+
       <div className="bg-white rounded-xl border border-slate-200 overflow-x-auto">
         <table className="w-full min-w-160">
           <thead>
