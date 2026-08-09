@@ -207,7 +207,7 @@ export default function CandidatesPage() {
               disabled={bulkStarting}
               className="text-sm font-medium bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
             >
-              {bulkStarting ? 'Starting...' : `Start ${selected.size} interview${selected.size > 1 ? 's' : ''}`}
+              {bulkStarting ? 'Starting...' : `Start interview${selected.size > 1 ? 's' : ''}`}
             </button>
             <button onClick={() => setSelected(new Set())} className="text-sm text-teal-700 hover:text-teal-800 transition-colors">
               Clear
