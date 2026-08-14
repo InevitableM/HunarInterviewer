@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { CandidateStatusBadge, CallStatusBadge } from '@/components/StatusBadge'
+import ErrorModal from '@/components/ErrorModal'
 
 interface Candidate {
   id: string
@@ -199,6 +200,7 @@ export default function CandidatesPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkStarting, setBulkStarting] = useState(false)
   const [viewing, setViewing] = useState<Candidate | null>(null)
+  const [errorModal, setErrorModal] = useState<string | null>(null)
 
   async function loadCandidates() {
     setLoading(true)
@@ -221,7 +223,7 @@ export default function CandidatesPage() {
       await loadCandidates()
       router.push('/dashboard')
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to start interview')
+      setErrorModal(err instanceof Error ? err.message : 'Failed to start interview')
     } finally {
       setStartingId(null)
     }
@@ -261,7 +263,7 @@ export default function CandidatesPage() {
       await loadCandidates()
       router.push('/dashboard')
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to start interviews')
+      setErrorModal(err instanceof Error ? err.message : 'Failed to start interviews')
     } finally {
       setBulkStarting(false)
     }
@@ -394,6 +396,7 @@ export default function CandidatesPage() {
 
       {showModal && <AddCandidateModal onClose={() => setShowModal(false)} onAdded={loadCandidates} />}
       {viewing && <CandidateDetail candidate={viewing} onClose={() => setViewing(null)} />}
+      {errorModal && <ErrorModal message={errorModal} onClose={() => setErrorModal(null)} />}
     </div>
   )
 }

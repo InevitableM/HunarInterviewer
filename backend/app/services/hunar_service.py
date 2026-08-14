@@ -16,6 +16,16 @@ def _headers():
     return {"X-API-Key": settings.hunar_api_key}
 
 
+def _raise_for_error(resp: httpx.Response) -> None:
+    if resp.status_code in (401, 403):
+        raise HTTPException(
+            status_code=502,
+            detail="Access to the Hunar AI API has been revoked by the Hunar AI team.",
+        )
+    if resp.status_code >= 400:
+        raise HTTPException(status_code=resp.status_code, detail=resp.json())
+
+
 async def start_call(
     candidate_name: str, phone: str, custom_data: dict | None = None
 ) -> dict:
@@ -39,8 +49,7 @@ async def start_call(
 
     async with httpx.AsyncClient() as client:
         resp = await client.post(url, json=body, headers=_headers())
-        if resp.status_code >= 400:
-            raise HTTPException(status_code=resp.status_code, detail=resp.json())
+        _raise_for_error(resp)
         return resp.json()
 
 
@@ -61,8 +70,7 @@ async def start_bulk_call(callees: list[dict]) -> list[dict]:
 
     async with httpx.AsyncClient() as client:
         resp = await client.post(url, json=body, headers=_headers())
-        if resp.status_code >= 400:
-            raise HTTPException(status_code=resp.status_code, detail=resp.json())
+        _raise_for_error(resp)
         return resp.json()
 
 
